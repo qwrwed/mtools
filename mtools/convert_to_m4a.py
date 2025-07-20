@@ -12,6 +12,7 @@ class ProgramArgsNamespace(Namespace):
     output_file: Path
     metadata_source_file: Path
     run_metacopy: bool
+    keep_input: bool
 
 
 def get_args() -> ProgramArgsNamespace:
@@ -30,6 +31,12 @@ def get_args() -> ProgramArgsNamespace:
         "-m",
         "--metadata-source-file",
         type=Path,
+    )
+    parser.add_argument(
+        "-k",
+        "--keep-input",
+        action="store_true",
+        help="Keep input file instead of deleting it",
     )
     parser.add_argument(
         "--no-metacopy",
@@ -69,6 +76,9 @@ def main(args: ProgramArgsNamespace):
         copy_metadata(args.metadata_source_file, args.output_file)
 
     copy_filedate(args.input_file, args.output_file)
+
+    if not args.keep_input:
+        args.input_file.unlink()
 
 
 if __name__ == "__main__":
