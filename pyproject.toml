@@ -16,3 +16,7 @@ utils-python = {git = "https://github.com/qwrwed/utils-python"}
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+skip_gitignore = true
+profile = "black"
