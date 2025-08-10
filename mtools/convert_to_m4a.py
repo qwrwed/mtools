@@ -1,10 +1,11 @@
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentError, ArgumentParser, Namespace
 from pathlib import Path
 
 import ffmpeg
 from utils_python import copy_filedate, setup_logger
 
 from mtools.metacopy import copy_metadata
+from mtools.utils import ensure_file, get_prefix_file_paths
 
 
 class ProgramArgsNamespace(Namespace):
@@ -27,10 +28,17 @@ def get_args() -> ProgramArgsNamespace:
         "--output-file",
         type=Path,
     )
-    parser.add_argument(
+    meta_source_parser = parser.add_mutually_exclusive_group()
+    meta_source_parser.add_argument(
         "-m",
         "--metadata-source-file",
         type=Path,
+    )
+    infer_source_arg = meta_source_parser.add_argument(
+        "-a",
+        "--infer-metadata-source-file",
+        action="store_true",
+        help="automatically guess which file to use as meta source",
     )
     parser.add_argument(
         "-k",
@@ -47,15 +55,30 @@ def get_args() -> ProgramArgsNamespace:
     args = parser.parse_args(namespace=ProgramArgsNamespace())
 
     if args.output_file is None:
-        args.output_file = args.input_file.with_suffix(".m4a")
+        args.output_file_path = args.input_file_path.with_suffix(".m4a")
 
     if args.metadata_source_file is None:
-        args.metadata_source_file = args.input_file
+        if args.infer_metadata_source_file:
+            prefix_paths = get_prefix_file_paths(args.output_file_path)
+            if prefix_paths:
+                print("Got candidate input paths:")
+                print("\n".join(f"  {path}" for path in prefix_paths))
+                args.input_file_path = prefix_paths[0]
+                print(f"Will copy metadata from path '{args.input_file_path}'")
+                input("Enter to continue, or Ctrl-C to cancel")
+            else:
+                raise ArgumentError(
+                    infer_source_arg, "was passed but no inferred paths found"
+                )
+        else:
+            args.metadata_source_file = args.input_file_path
 
     return args
 
 
 def main(args: ProgramArgsNamespace):
+    ensure_file(args.input_file)
+
     print(f"'{args.input_file}' -> '{args.output_file}'")
 
     cmd = ffmpeg.input(args.input_file)
