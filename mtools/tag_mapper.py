@@ -119,7 +119,11 @@ class TagMapper:
             if source_format == TagFormat.MP4:
                 if m := re.match("^----:com.apple.iTunes:(.*)$", source_key):
                     fieldname = m.group(1)
-                    if fieldname in self.mappings_by_label:
+                    if (
+                        fieldname_mappings := self.mappings_by_label.get(fieldname)
+                    ) is not None and (
+                        target_key := fieldname_mappings.get(target_format)
+                    ) is not None:
                         return self.mappings_by_label[fieldname][target_format]
                     return self.get_misc_field_tag(fieldname, target_format)
                 raise UnrecognisedTag(source_key) from exc
