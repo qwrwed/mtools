@@ -9,8 +9,8 @@ from mtools.utils import ensure_file, get_prefix_file_paths
 
 
 class ProgramArgsNamespace(Namespace):
-    input_file: Path
-    output_file: Path
+    input_file_path: Path
+    output_file_path: Path
     metadata_source_file: Path
     run_metacopy: bool
     keep_input: bool
@@ -19,13 +19,14 @@ class ProgramArgsNamespace(Namespace):
 def get_args() -> ProgramArgsNamespace:
     parser = ArgumentParser()
     parser.add_argument(
-        "input_file",
+        "input_file_path",
         metavar="INPUT_FILE",
         type=Path,
     )
     parser.add_argument(
         "-o",
         "--output-file",
+        dest="output_file_path",
         type=Path,
     )
     meta_source_parser = parser.add_mutually_exclusive_group()
@@ -54,7 +55,7 @@ def get_args() -> ProgramArgsNamespace:
     )
     args = parser.parse_args(namespace=ProgramArgsNamespace())
 
-    if args.output_file is None:
+    if args.output_file_path is None:
         args.output_file_path = args.input_file_path.with_suffix(".m4a")
 
     if args.metadata_source_file is None:
@@ -77,13 +78,13 @@ def get_args() -> ProgramArgsNamespace:
 
 
 def main(args: ProgramArgsNamespace):
-    ensure_file(args.input_file)
+    ensure_file(args.input_file_path)
 
-    print(f"'{args.input_file}' -> '{args.output_file}'")
+    print(f"'{args.input_file_path}' -> '{args.output_file_path}'")
 
-    cmd = ffmpeg.input(args.input_file)
+    cmd = ffmpeg.input(args.input_file_path)
     cmd = cmd.output(
-        str(args.output_file),
+        str(args.output_file_path),
         acodec="aac",
         map="0:a",
     )
@@ -96,12 +97,12 @@ def main(args: ProgramArgsNamespace):
         raise
 
     if args.run_metacopy:
-        copy_metadata(args.metadata_source_file, args.output_file)
+        copy_metadata(args.metadata_source_file, args.output_file_path)
 
-    copy_filedate(args.input_file, args.output_file)
+    copy_filedate(args.input_file_path, args.output_file_path)
 
     if not args.keep_input:
-        args.input_file.unlink()
+        args.input_file_path.unlink()
 
 
 if __name__ == "__main__":
