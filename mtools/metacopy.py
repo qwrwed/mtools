@@ -1,5 +1,5 @@
 import logging
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentError, ArgumentParser, Namespace
 from pathlib import Path
 
 from mutagen._file import FileType
@@ -7,7 +7,7 @@ from utils_python import setup_logger
 
 from mtools.errors import UnrecognisedTag
 from mtools.tag_mapper import TagMapper, get_tag_format
-from mtools.utils import make_mutagen_file
+from mtools.utils import get_prefix_file_paths, make_mutagen_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,12 +19,11 @@ class ProgramArgsNamespace(Namespace):
 
 def get_args() -> ProgramArgsNamespace:
     parser = ArgumentParser()
-    parser.add_argument(
+    input_file_arg = parser.add_argument(
         "-i",
         "--input-file",
         dest="input_file_path",
         type=Path,
-        required=True,
     )
     parser.add_argument(
         "-o",
@@ -33,7 +32,20 @@ def get_args() -> ProgramArgsNamespace:
         type=Path,
         required=True,
     )
-    return parser.parse_args(namespace=ProgramArgsNamespace())
+    args = parser.parse_args(namespace=ProgramArgsNamespace())
+    if args.input_file_path is None:
+        prefix_paths = get_prefix_file_paths(args.output_file_path)
+        if prefix_paths:
+            print("Got candidate input paths:")
+            print("\n".join(f"  {path}" for path in prefix_paths))
+            args.input_file_path = prefix_paths[0]
+            print(f"Will copy metadata from path '{args.input_file_path}'")
+            input("Enter to continue, or Ctrl-C to cancel")
+        else:
+            raise ArgumentError(
+                input_file_arg, "Not provided and could not be inferred"
+            )
+    return args
 
 
 def copy_metadata(
