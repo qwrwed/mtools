@@ -37,6 +37,8 @@ def get_prefix_file_paths(
         if path == file_path:
             continue
         if stem_only:
+            if path.stem == file_path.stem:
+                continue
             should_append = file_path.stem.startswith(path.stem)
         else:
             should_append = file_path.name.startswith(path.name)
