@@ -64,8 +64,8 @@ def get_args() -> ProgramArgsNamespace:
             if prefix_paths:
                 print("Got candidate input paths:")
                 print("\n".join(f"  {path}" for path in prefix_paths))
-                args.input_file_path = prefix_paths[0]
-                print(f"Will copy metadata from path '{args.input_file_path}'")
+                args.metadata_source_file = prefix_paths[0]
+                print(f"Will copy metadata from path '{args.metadata_source_file}'")
                 input("Enter to continue, or Ctrl-C to cancel")
             else:
                 raise ArgumentError(
