@@ -52,9 +52,9 @@ def copy_metadata(
     input_file_path: Path,
     output_file_path: Path,
 ):
-    LOGGER.info(f"Copying metadata: '{input_file_path}' -> '{output_file_path}'")
     input_file = make_mutagen_file(input_file_path)
     output_file = make_mutagen_file(output_file_path)
+    LOGGER.info(f"Copying metadata: '{input_file_path}' -> '{output_file_path}'")
 
     tag_mapper = TagMapper()
 
