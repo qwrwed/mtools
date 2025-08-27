@@ -9,6 +9,7 @@ from utils_python import PathInput
 def arg_to_enum(enum_class, arg):
     return enum_class(arg.upper())
 
+class UnsupportedFormat(Exception): ...
 
 def make_mutagen_file(path: PathInput) -> FileType:
     path = Path(path)
@@ -16,7 +17,10 @@ def make_mutagen_file(path: PathInput) -> FileType:
         ".mp3": MP3,
         ".m4a": MP4,
     }
-    filetype = suffixes_filetypes[path.suffix]
+    try:
+        filetype = suffixes_filetypes[path.suffix]
+    except KeyError as exc:
+        raise UnsupportedFormat(exc.args[0]) from exc
     return filetype(path)
 
 
