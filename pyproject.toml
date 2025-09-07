@@ -1,20 +1,22 @@
-[tool.poetry]
+[project]
 name = "mtools"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
-# readme = "README.md"
-# package-mode = false
+authors = [
+    { name = "qwrwed", email = "2429893+qwrwed@users.noreply.github.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4 (>=4.13.4,<5.0.0)",
+    "ffmpeg-python (>=0.2.0,<0.3.0)",
+    "mutagen (>=1.47.0,<2.0.0)",
+    "utils-python @ git+https://github.com/qwrwed/utils-python.git",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-beautifulsoup4 = "^4.13.4"
-ffmpeg-python = "^0.2.0"
-mutagen = "^1.47.0"
-utils-python = {git = "https://github.com/qwrwed/utils-python"}
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
